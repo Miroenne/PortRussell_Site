@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="../style/reset.css" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous"
+        />
+        <link rel="stylesheet" href="../style/style.css" />
+        <title>Document</title>
+    </head>
+    <body>
+        <header>
+            <h1>Port de plaisance Russell</h1>
+        </header>
+        <main>
+            <div
+                class="card shadow-lg mx-auto border-2 mt-5 w-50"
+                id="homeCard"
+            >
+                <!-- Primary header title of the card -->
+                <div class="card-header text-center">
+                    <p class="my-auto">Utilisateur connecté</p>
+                </div>
+                <div class="card-body row text-center">
+                    <!-- User Name Section with Fallback for unknown users -->
+                    <div class="col-6">
+                        <img
+                            src="../assests/img/user.png"
+                            class="cardIcon"
+                            alt="user icon"
+                        />
+                        <p class="card-title" id="connectedUserName"></p>
+                    </div>
+
+                    <!-- User Email Section -->
+                    <div class="col-6">
+                        <img
+                            src="../assests/img/email.png"
+                            class="cardIcon"
+                            alt="email icon"
+                        />
+                        <p class="card-text" id="connectedUserEmail"></p>
+                    </div>
+                </div>
+
+                <!-- Footer section displaying the localized current date -->
+                <div class="card-footer text-center">
+                    <img
+                        src="../assests/img/calendrier.png"
+                        class="cardIcon"
+                        alt="calendar icon"
+                    />
+                    <p class="text-capitalize" id="date"></p>
+                </div>
+            </div>
+            <!-- Data Table Section: Displays ongoing reservations -->
+            <div
+                class="container-fluid row mt-5 p-2 text-center justify-content-center"
+            >
+                <table class="mx-auto">
+                    <caption class="text-decoration-underline">
+                        Réservations en cours
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th>Numéro catway</th>
+                            <th>Nom</th>
+                            <th>Nom bâteau</th>
+                            <th>Début de réservation</th>
+                            <th>Fin de réservation</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reservationsBody">
+                        <!-- Iterate and render a row for each reservation found -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Numéro catway</th>
+                            <th>Nom</th>
+                            <th>Nom bâteau</th>
+                            <th>Début de réservation</th>
+                            <th>Fin de réservation</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </main>
+        <script src="../src/date.js"></script>
+        <script src="../js//connectedUser.js" type="module"></script>
+        <script src="../js/protectedPage.js"></script>
+        <script src="../js/extractReservations.js" type="module"></script>
+        <script type="module" src="../components/reservationsTable.js"></script>
+        <script type="module" src="../src/config.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"
+        ></script>
+    </body>
+</html>
