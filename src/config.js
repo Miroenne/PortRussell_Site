@@ -2,7 +2,6 @@ export function config(page) {
     const domain = "https://portrussell-api.onrender.com/";
     const local = "http://localhost:5500/";
     const url = window.location.href;
-    console.log(url);
 
     if (url.includes(local)) {
         const configUrl = {

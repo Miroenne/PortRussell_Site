@@ -29,6 +29,9 @@ li {
 .min-vh-50 {
     min-height: 50vh;
 }
+.w-45 {
+    width: 45%;
+}
 .display-block {
     display: block;
 }
