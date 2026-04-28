@@ -11,10 +11,20 @@ export async function extractAndDisplayCatways() {
 
     const catways = await catwaysResponse.json();
 
+    const sortedCatways = catways.sort((a, b) => {
+        if (a.catwayNumber < b.catwayNumber) {
+            return -1;
+        }
+        if (a.catwayNumber > b.catwayNumber) {
+            return 1;
+        }
+        return 0;
+    });
+
     const catwaysCardsContainer = document.querySelector(
         "#catwaysCardsContainer",
     );
-    catways.forEach((catway) => {
+    sortedCatways.forEach((catway) => {
         const number = catway.catwayNumber;
         const type = catway.catwayType;
         const state = catway.catwayState;
