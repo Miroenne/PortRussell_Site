@@ -11,17 +11,67 @@
             crossorigin="anonymous"
         />
         <link rel="stylesheet" href="../style/style.css" />
-        <title>Document</title>
+        <title>Port Russell - Catways</title>
     </head>
     <body>
         <header>
             <div id="navBar"></div>
         </header>
         <main>
-            <p>pages des catways</p>
+            <div>
+                <!--Action buttons to trigger the Modal or the Delete process -->
+                <div class="text-center row justify-content-start">
+                    <button type="button" class="btn btn-success w-auto col-6 mt-5 ms-4_5" data-bs-toggle="modal" data-bs-target="#addCatwayModal">
+                    Ajouter un catway
+                    </button>                                    
+                </div>
+
+
+                <!--Bootstrap Modal Structure -->
+                <div class="fade modal " id="addCatwayModal" name='myModal' tabIndex="-1" aria-labelledby="addCatwayModalLabel" aria-hidden="true">                    
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="addCatwayModalLabel">Ajouter un catway</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!--Dynamic form generation based on the fields array prop -->
+                                <form id="addCatwayForm">     
+                                    <div class='container'>                     
+                                        <div class='mb-3 text-start' >
+                                            <label class='form-label' for="CatwayNumber"></label>
+                                            <input type="text" class="form-control" id="catwayNumber" name="catwayNumber" placeholder="Numéro de catway" required></input>
+                                        </div>
+                                        <div class='mb-3 text-start' >
+                                            <label class='form-label' for="catwayType"></label>
+                                            <input type="text" class="form-control" id="catwayType" name="catwayType" placeholder="Type de catway" required></input>
+                                        </div>
+                                        <div class='mb-3 text-start' >
+                                            <label class='form-label' for="catwayState"></label>
+                                            <input type="text" class="form-control" id="catwayState" name="catwayState" placeholder="État du catway" required></input>
+                                        </div>                                                                               
+                                    </div>
+                                    <div class="text-center pt-3">
+                                        <input type="submit" class="btn btn-primary me-5" value="Valider"></input>  
+                                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fermer</button> 
+                                    </div>                                                         
+                                </form>
+                            </div>               
+                        </div>            
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid mx-0 text-center" id="mainContainer">
+                <div
+                    class="row mx-auto justify-content-evenly"
+                    id="catwaysCardsContainer"
+                ></div>
+            </div>
         </main>
         <script src="../components/navBar.js" type="module"></script>
         <script src="../js/protectedPage.js"></script>
+        <script type="module" src="../js/catways.js"></script>
         <script type="module" src="../src/config.js"></script>
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"

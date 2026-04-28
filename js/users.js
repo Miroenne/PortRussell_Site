@@ -1,27 +1,27 @@
 import { config } from "../src/config.js";
 
 export async function extractAndDisplayUsers() {
-    const url = config("/users");
+    const usersUrl = config("/users");
 
-    const response = await fetch(url, {
+    const usersResponse = await fetch(usersUrl, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
     });
 
-    const users = await response.json();
+    const users = await usersResponse.json();
 
-    const container = document.querySelector("#usersCardsContainer");
+    const usersCardsContainer = document.querySelector("#usersCardsContainer");
     users.forEach((user) => {
         const name = user.userName.replaceAll(" ", "");
-        const cardId = `${name}Card`;
-        const updateModalId = `${name}UpdateModal`;
+        const usersCardId = `${name}Card`;
+        const usersUpdateModalId = `${name}UpdateModal`;
 
-        console.log(cardId);
-        console.log(updateModalId);
+        console.log(usersCardId);
+        console.log(usersUpdateModalId);
 
-        container.innerHTML += `                        
-                <div class="card shadow-lg min-h-200 mx-auto border-2 mt-5 w-45" id=${cardId}>            
+        usersCardsContainer.innerHTML += `                        
+                <div class="card shadow-lg min-h-200 mx-auto border-2 mt-5 w-45" id=${usersCardId}>            
                     <div class="card-body text-center">
                         <!-- Standard grid layout for common resource properties -->
                         <div class="row">
@@ -41,20 +41,20 @@ export async function extractAndDisplayUsers() {
                        <div>
                             <!-- Action buttons to trigger the Modal or the Delete process -->
                             <div class="text-center row justify-content-evenly">
-                                <button type="button" class="btn btn-success w-auto col-6 " data-bs-toggle="modal" data-bs-target="#${updateModalId}">
+                                <button type="button" class="btn btn-success w-auto col-6 " data-bs-toggle="modal" data-bs-target="#${usersUpdateModalId}">
                                 Modifier
                                 </button>
-                                <button class="btn btn-danger w-auto d-inline col-6 " onClick={handleDelete}>
+                                <button class="btn btn-danger w-auto d-inline col-6 delete-button" data-user-email="${user.email}" type="button">
                                     Supprimer
                                 </button>                
                             </div>
 
                             <!-- Bootstrap Modal Structure -->
-                            <div class="fade modal " id="${updateModalId}" name='myModal' tabIndex="-1" aria-labelledby="${updateModalId}Label" aria-hidden="true">                    
+                            <div class="fade modal " id="${usersUpdateModalId}" name='myModal' tabIndex="-1" aria-labelledby="${usersUpdateModalId}Label" aria-hidden="true">                    
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h1 class="modal-title fs-5" id="${updateModalId}Label">Ajouter un utilisateur</h1>
+                                            <h1 class="modal-title fs-5" id="${usersUpdateModalId}Label">Ajouter un utilisateur</h1>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
@@ -90,7 +90,9 @@ export async function extractAndDisplayUsers() {
     });
 }
 
-extractAndDisplayUsers();
+if (window.location.href.includes("users")) {
+    extractAndDisplayUsers();
+}
 
 var userName = "";
 var email = "";
@@ -106,13 +108,13 @@ export async function handleSubmit(event) {
     console.log("handleSubmit");
 
     const addFormData = new FormData(addForm);
-    userName = formData.get("userName");
-    email = formData.get("email");
-    password = formData.get("password");
+    userName = addFormData.get("userName");
+    email = addFormData.get("email");
+    password = addFormData.get("password");
 
     const addPreload = { userName, email, password };
 
-    if (addPassword.length < 8) {
+    if (password.length < 8) {
         alert("Le mot de passe doit contenir au moins 8 caractères");
         return;
     }
@@ -126,7 +128,7 @@ export async function handleSubmit(event) {
             credentials: "include",
             body: JSON.stringify(addPreload),
         });
-        window.location.href = "./confirmAddUser.html";
+        window.location.href = "./subpages/confirmAddUser.html";
     } catch (error) {
         console.log(error);
     }
@@ -167,13 +169,70 @@ export async function handleUpdateSubmit(event) {
     if (password) preload.password = password;
 
     const updateUrl = config("/users/" + encodeURIComponent(originalEmail));
+    try {
+        const response = await fetch(updateUrl, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(preload),
+        });
+    } catch (error) {
+        alert(error.message);
+    }
 
-    const response = await fetch(updateUrl, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(preload),
-    });
+    window.location.href = "./subpages/confirmUpdateUser.html";
+}
 
-    // window.location.href = "./confirmUpdateUser.html";
+async function handleDelete(event) {
+    const deleteBtn = event.target.closest(".delete-button");
+    const userEmail = deleteBtn.dataset.userEmail;
+    console.log("userEmail: " + userEmail);
+
+    const connectedUser = sessionStorage.getItem("user");
+    const sessionUser = JSON.parse(connectedUser);
+
+    const deleteUrl = config("/users/" + encodeURIComponent(userEmail));
+
+    console.log("sessionUser.email: " + sessionUser.email);
+    console.log(
+        "includes portrussell: " + sessionUser.email.includes("portrussell"),
+    );
+
+    if (
+        window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")
+    ) {
+        if (userEmail.includes("portrussell")) {
+            return alert("Vous ne pouvez pas supprimer cet utilisateur");
+        }
+        if (userEmail !== sessionUser.email) {
+            console.log(userEmail);
+            console.log(sessionUser.email);
+            if (sessionUser.email.includes("portrussell") === false) {
+                return alert("Vous ne pouvez pas supprimer cet utilisateur");
+            }
+        }
+        try {
+            const response = await fetch(deleteUrl, {
+                method: "DELETE",
+                credentials: "include",
+            });
+            if (response.ok) {
+                const connectedUser = sessionStorage.getItem("user");
+                const sessionUser = JSON.parse(connectedUser);
+                if (sessionUser.email === userEmail) {
+                    sessionStorage.removeItem("user");
+                    window.location.href =
+                        "./subpages/confirmDeleteConnectedUser.html";
+                } else {
+                    window.location.href = "./subpages/confirmDeleteUser.html";
+                }
+            }
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+}
+
+if (usersCardContainer) {
+    usersCardContainer.addEventListener("click", handleDelete);
 }
