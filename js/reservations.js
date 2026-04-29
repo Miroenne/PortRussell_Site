@@ -37,48 +37,61 @@ import { config } from "../src/config.js";
  */
 export async function extractAndDisplayReservations() {
     const catwaysUrl = config("/catways");
-
-    const catwaysResponse = await fetch(catwaysUrl, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-    });
+    try {
+        const catwaysResponse = await fetch(catwaysUrl, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+        })
+            .then(async (response) => {
+                var data;
+                if (!response.ok) {
+                    data = await response.json();
+                    return Promise.reject(data);
+                }
+                return data;
+            })
+            .then((data) => {
+                console.log(data);
+            });
+    } catch (error) {
+        alert(jsonData.errorMessage);
+    }
 
     const catways = await catwaysResponse.json();
-    console.log(catways);
+
     if (catways) {
-        try {
-            catways.forEach(async (catway) => {
-                const reservationsUrl = config(
-                    "/catways/" + catway.catwayNumber + "/reservations",
-                    {
-                        method: "GET",
-                        headers: { "Content-Type": "application/json" },
-                        credentials: "include",
-                    },
-                );
+        catways.forEach(async (catway) => {
+            const reservationsUrl = config(
+                "/catways/" + catway.catwayNumber + "/reservations",
+                {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                },
+            );
 
-                const reservationsResponse = await fetch(reservationsUrl);
+            const reservationsResponse = await fetch(reservationsUrl);
 
-                const reservations = await reservationsResponse.json();
+            const reservations = await reservationsResponse.json();
 
-                const reservationsCardsContainer = document.querySelector(
-                    "#reservationsCardsContainer",
-                );
-                reservations.forEach((reservation) => {
-                    const reservationCardId = `${reservation._id}Card`;
-                    const reservationUpdateModalId = `${reservation._id}UpdateModal`;
-                    const number = reservation.catwayNumber;
-                    const clientName = reservation.clientName;
-                    const boatName = reservation.boatName;
-                    const startDate = new Date(reservation.startDate)
-                        .toISOString()
-                        .split("T")[0];
-                    const endDate = new Date(reservation.endDate)
-                        .toISOString()
-                        .split("T")[0];
+            const reservationsCardsContainer = document.querySelector(
+                "#reservationsCardsContainer",
+            );
+            reservations.forEach((reservation) => {
+                const reservationCardId = `${reservation._id}Card`;
+                const reservationUpdateModalId = `${reservation._id}UpdateModal`;
+                const number = reservation.catwayNumber;
+                const clientName = reservation.clientName;
+                const boatName = reservation.boatName;
+                const startDate = new Date(reservation.startDate)
+                    .toISOString()
+                    .split("T")[0];
+                const endDate = new Date(reservation.endDate)
+                    .toISOString()
+                    .split("T")[0];
 
-                    reservationsCardsContainer.innerHTML += `                        
+                reservationsCardsContainer.innerHTML += `                        
                         <div class="card shadow-lg min-h-200 mx-auto border-2 mt-5 w-45" id=${reservationCardId}>            
                             <div class="card-body text-center">
                                 <!-- Standard grid layout for common resource properties -->
@@ -165,14 +178,12 @@ export async function extractAndDisplayReservations() {
                             </div>
                         </div>          
                     `;
-                });
             });
-        } catch (error) {
-            console.log(error);
-        }
+        });
     }
 }
 
+// Load reservations only on the dedicated page to keep this module reusable.
 if (window.location.href.includes("reservations")) {
     extractAndDisplayReservations();
 }
@@ -184,8 +195,6 @@ if (window.location.href.includes("reservations")) {
  * @returns {Promise<void>}
  */
 export async function handleSubmit(event) {
-    console.log("handleSubmit");
-
     const addForm = event.target.closest("#addReservationForm");
 
     if (!addForm) return;
@@ -229,7 +238,6 @@ export async function handleSubmit(event) {
             });
         window.location.href = "./subpages/confirmAddReservation.html";
     } catch (error) {
-        console.log(error);
         alert(jsonData.errorMessage);
     }
 }
@@ -237,6 +245,7 @@ export async function handleSubmit(event) {
 const addReservationForm = document.querySelector("#addReservationForm");
 
 if (addReservationForm) {
+    // Static modal form listener for reservation creation.
     addReservationForm.addEventListener("submit", handleSubmit);
 }
 
@@ -247,13 +256,11 @@ if (addReservationForm) {
  * @returns {Promise<void>}
  */
 export async function handleUpdateSubmit(event) {
-    console.log("handleUpdateSubmit");
     const updateForm = event.target.closest(".update-reservation-form");
 
     if (!updateForm) return;
     event.preventDefault();
 
-    console.log("handleUpdateSubmit");
     const idReservation = updateForm.dataset.idReservation;
     const reservedCatwayNumber = updateForm.dataset.catwayNumber;
     const updateFormData = new FormData(updateForm);
@@ -306,8 +313,6 @@ export async function handleUpdateSubmit(event) {
             });
         window.location.href = "./subpages/confirmUpdateReservation.html";
     } catch (error) {
-        console.log("une erreur est présente");
-        console.log(error);
         alert(jsonData.errorMessage);
     }
 }
@@ -317,6 +322,7 @@ const reservationsCardsContainer = document.querySelector(
 );
 
 if (reservationsCardsContainer) {
+    // Event delegation handles submit events from dynamically generated update forms.
     reservationsCardsContainer.addEventListener("submit", handleUpdateSubmit);
 }
 
@@ -330,7 +336,6 @@ async function handleDelete(event) {
     const deleteBtn = event.target.closest(".delete-button");
     const catwayNumber = deleteBtn.dataset.catwayId;
     const idReservation = deleteBtn.dataset.idReservation;
-    console.log(catwayNumber);
 
     const deleteUrl = config(
         "/catways/" + catwayNumber + "/reservations/" + idReservation,
@@ -364,5 +369,6 @@ async function handleDelete(event) {
 }
 
 if (reservationsCardsContainer) {
+    // Event delegation handles delete clicks from dynamic cards.
     reservationsCardsContainer.addEventListener("click", handleDelete);
 }

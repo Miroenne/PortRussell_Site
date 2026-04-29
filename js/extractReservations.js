@@ -10,6 +10,7 @@ var url = null;
  * @returns {Promise<void>}
  */
 async function extractReservations() {
+    // Future-proof flag intended for UI hooks after first successful load.
     /** @type {boolean} */
     var hasFetched = false;
     url = config("/catways/");
@@ -22,10 +23,20 @@ async function extractReservations() {
             method: "GET",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
-        });
-        catways = await resCatways.json();
+        })
+            .then(async (response) => {
+                var data;
+                if (!response.ok) {
+                    data = await response.json();
+                    return Promise.reject(data);
+                }
+                return data;
+            })
+            .then((data) => {
+                console.log(data);
+            });
     } catch (error) {
-        console.log(error);
+        alert(jsonData.errorMessage);
     }
 
     if (catways) {
@@ -34,14 +45,26 @@ async function extractReservations() {
                 url = config(
                     "/catways/" + catway.catwayNumber + "/reservations",
                 );
-                console.log(url);
+
                 const resReservations = await fetch(url, {
                     method: "GET",
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
-                });
+                })
+                    .then(async (response) => {
+                        var data;
+                        if (!response.ok) {
+                            data = await response.json();
+                            return Promise.reject(data);
+                        }
+                        return data;
+                    })
+                    .then((data) => {
+                        console.log(data);
+                    });
+
                 reservations = await resReservations.json();
-                console.log(reservations);
+
                 hasFetched = true;
 
                 const container = document.querySelector("#reservationsBody");
@@ -56,9 +79,10 @@ async function extractReservations() {
                 });
             });
         } catch (error) {
-            console.log(error);
+            alert(jsonData.errorMessage);
         }
     }
 }
 
+// Bootstrap table population when the dashboard script is loaded.
 extractReservations();

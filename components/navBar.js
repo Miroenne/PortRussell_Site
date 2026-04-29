@@ -8,16 +8,26 @@ import { extractAndDisplayUsers } from "../js/users.js";
  */
 async function logout() {
     const url = config("/users/logout");
-    console.log(url);
 
     try {
         await fetch(url, {
             method: "GET",
             // 'include' ensures that HTTP-only cookies (like JWT) are handled correctly
             credentials: "include",
-        });
+        })
+            .then(async (response) => {
+                var data;
+                if (!response.ok) {
+                    data = await response.json();
+                    return Promise.reject(data);
+                }
+                return data;
+            })
+            .then((data) => {
+                console.log(data);
+            });
     } catch (error) {
-        console.log(error);
+        alert(jsonData.errorMessage);
     }
 
     sessionStorage.removeItem("user");
@@ -78,6 +88,7 @@ export function createNavBar() {
                 <a class="nav-link" id="users" href="../pages/users.html">Utilisateurs</a
             </li>
             <li class="nav-item">
+                <!-- External API docs shortcut for operators -->
                 <a class="nav-link" id="docs" href="https://portrussell-api.onrender.com/docs" target="_blank">Documentation</a
             </li>
             <li class="nav-item">
@@ -121,4 +132,5 @@ export function createNavBar() {
     navBarDiv.appendChild(navBar);
 }
 
+// Build navigation immediately when this component module is loaded.
 createNavBar();
