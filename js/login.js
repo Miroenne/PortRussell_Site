@@ -1,7 +1,6 @@
 const form = document.getElementById("login-form");
 form.addEventListener("submit", handleLogin);
 import { config } from "../src/config.js";
-const url = config("/users/login");
 
 /**
  * Handle the login form submission and authenticate the user.
@@ -10,6 +9,7 @@ const url = config("/users/login");
  * @returns {Promise<void>}
  */
 async function handleLogin(e) {
+    const url = config("/users/login");
     // Prevent the default browser form submission behavior (page reload)
     e.preventDefault();
     console.log("Entrée dans la fonction handleLogin");
