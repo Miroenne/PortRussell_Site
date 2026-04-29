@@ -1,5 +1,40 @@
 import { config } from "../src/config.js";
 
+/**
+ * Lightweight catway shape returned by the API when listing catways.
+ *
+ * @typedef {Object} CatwaySummary
+ * @property {string|number} catwayNumber - Unique catway identifier.
+ */
+
+/**
+ * Reservation object returned by the API.
+ *
+ * @typedef {Object} ReservationDto
+ * @property {string} _id - Reservation unique identifier.
+ * @property {string|number} catwayNumber - Linked catway number.
+ * @property {string} clientName - Customer full name.
+ * @property {string} boatName - Boat display name.
+ * @property {string} startDate - Reservation start date as ISO string.
+ * @property {string} endDate - Reservation end date as ISO string.
+ */
+
+/**
+ * Reservation payload sent when creating or updating a reservation.
+ *
+ * @typedef {Object} ReservationPayload
+ * @property {string|FormDataEntryValue|null} catwayNumber - Catway identifier.
+ * @property {string|FormDataEntryValue|null} clientName - Customer full name.
+ * @property {string|FormDataEntryValue|null} boatName - Boat display name.
+ * @property {Date|string} startDate - Reservation start date.
+ * @property {Date|string} endDate - Reservation end date.
+ */
+
+/**
+ * Fetch all catways and render every linked reservation card into the page.
+ *
+ * @returns {Promise<void>}
+ */
 export async function extractAndDisplayReservations() {
     const catwaysUrl = config("/catways");
 
@@ -142,6 +177,12 @@ if (window.location.href.includes("reservations")) {
     extractAndDisplayReservations();
 }
 
+/**
+ * Handle the "add reservation" form submission and send a create request.
+ *
+ * @param {SubmitEvent} event - Native submit event coming from the add form.
+ * @returns {Promise<void>}
+ */
 export async function handleSubmit(event) {
     console.log("handleSubmit");
 
@@ -199,6 +240,12 @@ if (addReservationForm) {
     addReservationForm.addEventListener("submit", handleSubmit);
 }
 
+/**
+ * Handle an inline reservation update form submission inside a card modal.
+ *
+ * @param {SubmitEvent} event - Native submit event emitted by update forms.
+ * @returns {Promise<void>}
+ */
 export async function handleUpdateSubmit(event) {
     console.log("handleUpdateSubmit");
     const updateForm = event.target.closest(".update-reservation-form");
@@ -273,6 +320,12 @@ if (reservationsCardsContainer) {
     reservationsCardsContainer.addEventListener("submit", handleUpdateSubmit);
 }
 
+/**
+ * Handle reservation deletion from a card action button.
+ *
+ * @param {MouseEvent} event - Click event captured on the reservation container.
+ * @returns {Promise<void>}
+ */
 async function handleDelete(event) {
     const deleteBtn = event.target.closest(".delete-button");
     const catwayNumber = deleteBtn.dataset.catwayId;

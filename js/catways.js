@@ -1,5 +1,28 @@
 import { config } from "../src/config.js";
 
+/**
+ * Catway data returned by the API.
+ *
+ * @typedef {Object} CatwayDto
+ * @property {string|number} catwayNumber - Catway identifier.
+ * @property {string} catwayType - Catway type label.
+ * @property {string} catwayState - Current catway status.
+ */
+
+/**
+ * Catway payload used by create/update requests.
+ *
+ * @typedef {Object} CatwayPayload
+ * @property {string|FormDataEntryValue|null} [catwayNumber] - Catway number.
+ * @property {string|FormDataEntryValue|null} [catwayType] - Catway type.
+ * @property {string|FormDataEntryValue|null} catwayState - Catway status.
+ */
+
+/**
+ * Fetch every catway and render cards in ascending catway number order.
+ *
+ * @returns {Promise<void>}
+ */
 export async function extractAndDisplayCatways() {
     const catwaysUrl = config("/catways");
 
@@ -109,9 +132,17 @@ if (window.location.href.includes("catways")) {
     extractAndDisplayCatways();
 }
 
+/** @type {string} */
 var catwayState = "";
+/** @type {string|number|FormDataEntryValue|null} */
 var catwayNumber = "";
 
+/**
+ * Handle the "add catway" form and send a create request.
+ *
+ * @param {SubmitEvent} event - Submit event emitted by the add catway form.
+ * @returns {Promise<void>}
+ */
 export async function handleSubmit(event) {
     const addForm = event.target.closest("#addCatwayForm");
 
@@ -147,6 +178,12 @@ if (addCatwayForm) {
     addCatwayForm.addEventListener("submit", handleSubmit);
 }
 
+/**
+ * Handle inline catway updates from modal forms.
+ *
+ * @param {SubmitEvent} event - Submit event from an update catway form.
+ * @returns {Promise<void>}
+ */
 export async function handleUpdateSubmit(event) {
     const updateForm = event.target.closest(".update-catway-form");
 
@@ -183,6 +220,12 @@ if (catwaysCardsContainer) {
     catwaysCardsContainer.addEventListener("submit", handleUpdateSubmit);
 }
 
+/**
+ * Handle catway deletion when the user clicks a delete action.
+ *
+ * @param {MouseEvent} event - Click event delegated from the cards container.
+ * @returns {Promise<void>}
+ */
 async function handleDelete(event) {
     const deleteBtn = event.target.closest(".delete-button");
     catwayNumber = deleteBtn.dataset.catwayId;

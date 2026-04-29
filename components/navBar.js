@@ -1,6 +1,11 @@
 import { config } from "../src/config.js";
 import { extractAndDisplayUsers } from "../js/users.js";
 
+/**
+ * Call the logout endpoint, clear session storage, then redirect to login.
+ *
+ * @returns {Promise<void>}
+ */
 async function logout() {
     const url = config("/users/logout");
     console.log(url);
@@ -20,6 +25,13 @@ async function logout() {
     window.location.href = "../index.html";
 }
 
+/**
+ * Toggle active navigation styles between two links.
+ *
+ * @param {Element|null} activeElement - Element that must become active.
+ * @param {Element|null} nonActiveElement - Element that must become inactive.
+ * @returns {void}
+ */
 function activeClassChanger(activeElement, nonActiveElement) {
     if (activeElement) {
         activeElement.classList.add("active");
@@ -34,6 +46,11 @@ function activeClassChanger(activeElement, nonActiveElement) {
     window.activeClassChanger = activeClassChanger;
 }
 
+/**
+ * Render and configure the main navbar according to the current page.
+ *
+ * @returns {void}
+ */
 export function createNavBar() {
     const navBarDiv = document.querySelector("#navBar");
     const navBar = document.createElement("nav");
@@ -59,6 +76,9 @@ export function createNavBar() {
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="users" href="../pages/users.html">Utilisateurs</a
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="docs" href="https://portrussell-api.onrender.com/docs" target="_blank">Documentation</a
             </li>
             <li class="nav-item">
                 <button type="button" class="nav-link" id="logoutBtn">Déconnexion</button>

@@ -4,8 +4,10 @@ import { config } from "../src/config.js";
 const url = config("/users/login");
 
 /**
- * Handle Login logic
- * Triggered on form submission. Performs an asynchronous POST request to the server.
+ * Handle the login form submission and authenticate the user.
+ *
+ * @param {SubmitEvent} e - Native submit event from the login form.
+ * @returns {Promise<void>}
  */
 async function handleLogin(e) {
     // Prevent the default browser form submission behavior (page reload)

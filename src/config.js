@@ -1,5 +1,11 @@
+/**
+ * Resolve the API base URL according to the current frontend origin.
+ *
+ * @param {string} page - API path to append (for example "/users").
+ * @returns {string|null} Complete API URL or `null` when origin is unsupported.
+ */
 export function config(page) {
-    const domain = "https://portrussell-api.onrender.com/";
+    const domain = "https://portrussell-site.onrender.com/";
     const local = "http://localhost:5500/";
     const url = window.location.href;
 

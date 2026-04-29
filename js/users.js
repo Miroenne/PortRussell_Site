@@ -1,5 +1,27 @@
 import { config } from "../src/config.js";
 
+/**
+ * User object returned by the API.
+ *
+ * @typedef {Object} UserDto
+ * @property {string} userName - Full user name.
+ * @property {string} email - User unique email.
+ */
+
+/**
+ * User payload used in create and update requests.
+ *
+ * @typedef {Object} UserPayload
+ * @property {string|FormDataEntryValue|null} userName - User display name.
+ * @property {string|FormDataEntryValue|null} email - User email.
+ * @property {string|FormDataEntryValue|null} [password] - Raw password (optional on update).
+ */
+
+/**
+ * Fetch all users and render one card per user.
+ *
+ * @returns {Promise<void>}
+ */
 export async function extractAndDisplayUsers() {
     const usersUrl = config("/users");
 
@@ -94,10 +116,19 @@ if (window.location.href.includes("users")) {
     extractAndDisplayUsers();
 }
 
+/** @type {string|FormDataEntryValue|null} */
 var userName = "";
+/** @type {string|FormDataEntryValue|null} */
 var email = "";
+/** @type {string|FormDataEntryValue|null} */
 var password = "";
 
+/**
+ * Handle the "add user" form submission and send a create request.
+ *
+ * @param {SubmitEvent} event - Submit event emitted by the add user form.
+ * @returns {Promise<void>}
+ */
 export async function handleSubmit(event) {
     const addForm = event.target.closest("#addUserForm");
 
@@ -146,6 +177,12 @@ if (usersCardContainer) {
     usersCardContainer.addEventListener("submit", handleUpdateSubmit);
 }
 
+/**
+ * Handle user updates submitted from modal forms.
+ *
+ * @param {SubmitEvent} event - Submit event emitted by an update user form.
+ * @returns {Promise<void>}
+ */
 export async function handleUpdateSubmit(event) {
     const updateForm = event.target.closest(".update-user-form");
 
@@ -183,6 +220,12 @@ export async function handleUpdateSubmit(event) {
     window.location.href = "./subpages/confirmUpdateUser.html";
 }
 
+/**
+ * Handle user deletion with additional permission checks against session data.
+ *
+ * @param {MouseEvent} event - Click event delegated from the users container.
+ * @returns {Promise<void>}
+ */
 async function handleDelete(event) {
     const deleteBtn = event.target.closest(".delete-button");
     const userEmail = deleteBtn.dataset.userEmail;
