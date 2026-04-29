@@ -28,21 +28,10 @@ async function handleLogin(e) {
             // 'include' ensures that HTTP-only cookies (like JWT) are handled correctly
             credentials: "include",
             body: JSON.stringify({ email, password }),
-        })
-            .then(async (response) => {
-                var data;
-                if (!response.ok) {
-                    data = await response.json();
-                    return Promise.reject(data);
-                }
-                return data;
-            })
-            .then((data) => {
-                console.log(data);
-            });
+        });
     } catch (error) {
         // Error payloads are expected to expose `errorMessage`.
-        alert(jsonData.errorMessage);
+        alert(error.message);
     }
 
     const data = await response.json();
