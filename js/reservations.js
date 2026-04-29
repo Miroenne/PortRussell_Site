@@ -36,12 +36,12 @@ export async function extractAndDisplayReservations() {
                     const number = reservation.catwayNumber;
                     const clientName = reservation.clientName;
                     const boatName = reservation.boatName;
-                    const startDate = new Date(
-                        reservation.startDate,
-                    ).toLocaleDateString("fr-FR");
-                    const endDate = new Date(
-                        reservation.endDate,
-                    ).toLocaleDateString("fr-FR");
+                    const startDate = new Date(reservation.startDate)
+                        .toISOString()
+                        .split("T")[0];
+                    const endDate = new Date(reservation.endDate)
+                        .toISOString()
+                        .split("T")[0];
 
                     reservationsCardsContainer.innerHTML += `                        
                         <div class="card shadow-lg min-h-200 mx-auto border-2 mt-5 w-45" id=${reservationCardId}>            
@@ -80,7 +80,7 @@ export async function extractAndDisplayReservations() {
                                         <button type="button" class="btn btn-success w-auto col-6 " data-bs-toggle="modal" data-bs-target="#${reservationUpdateModalId}">
                                         Modifier
                                         </button>
-                                        <button class="btn btn-danger w-auto d-inline col-6 delete-button" data-catway-id="${number}" type="button">
+                                        <button class="btn btn-danger w-auto d-inline col-6 delete-button" data-catway-id="${number}" data-id-reservation="${reservation._id}" type="button">
                                             Supprimer
                                         </button>                
                                     </div>
@@ -95,8 +95,8 @@ export async function extractAndDisplayReservations() {
                                                 </div>
                                                 <div class="modal-body">
                                                     <!--Dynamic form generation based on the fields array prop -->
-                                                    <form class="update-reservation-form" data-catway-number="${number}">     
-                                                        <div class='container'>                     
+                                                    <form class="update-reservation-form" data-catway-number="${number}" data-id-reservation="${reservation._id}">     
+                                                        <div class='container'>                                                                                
                                                             <div class='mb-3 text-start' >
                                                                 <label class='form-label' for="catwayNumber"></label>
                                                                 <input type="text" class="form-control js-catway-number" id="catwayNumber" name="catwayNumber" value="${number}" ></input>
@@ -111,10 +111,10 @@ export async function extractAndDisplayReservations() {
                                                             </div>   
                                                             <div class='mb-3 text-start' >
                                                                 <label class='form-label' for="startDate"></label>
-                                                                <input type="text" class="form-control" id="startDate" name="startDate" value="${startDate}"></input>
+                                                                <input type="date" class="form-control" id="startDate" name="startDate" value="${startDate}"></input>
                                                             </div> <div class='mb-3 text-start' >
                                                                 <label class='form-label' for="endDate"></label>
-                                                                <input type="text" class="form-control" id="endDate" name="endDate" value="${endDate}"></input>
+                                                                <input type="date" class="form-control" id="endDate" name="endDate" value="${endDate}"></input>
                                                             </div>                                                                             
                                                         </div>
                                                         <div class="text-center pt-3">
@@ -176,8 +176,9 @@ export async function handleSubmit(event) {
             body: JSON.stringify(addPreload),
         })
             .then(async (response) => {
+                var data;
                 if (!response.ok) {
-                    const data = await response.json();
+                    data = await response.json();
                     return Promise.reject(data);
                 }
                 return data;
@@ -187,6 +188,7 @@ export async function handleSubmit(event) {
             });
         window.location.href = "./subpages/confirmAddReservation.html";
     } catch (error) {
+        console.log(error);
         alert(jsonData.errorMessage);
     }
 }
@@ -195,4 +197,119 @@ const addReservationForm = document.querySelector("#addReservationForm");
 
 if (addReservationForm) {
     addReservationForm.addEventListener("submit", handleSubmit);
+}
+
+export async function handleUpdateSubmit(event) {
+    console.log("handleUpdateSubmit");
+    const updateForm = event.target.closest(".update-reservation-form");
+
+    if (!updateForm) return;
+    event.preventDefault();
+
+    console.log("handleUpdateSubmit");
+    const idReservation = updateForm.dataset.idReservation;
+    const reservedCatwayNumber = updateForm.dataset.catwayNumber;
+    const updateFormData = new FormData(updateForm);
+    const catwayNumber = updateFormData.get("catwayNumber") || "";
+    const clientName = updateFormData.get("clientName") || "";
+    const boatName = updateFormData.get("boatName") || "";
+    const startDate = new Date(updateFormData.get("startDate")) || "";
+    const endDate = new Date(updateFormData.get("endDate")) || "";
+
+    const preload = {
+        catwayNumber,
+        clientName,
+        boatName,
+        startDate,
+        endDate,
+    };
+
+    var updateUrl = "";
+
+    if (reservedCatwayNumber !== catwayNumber) {
+        updateUrl = config(
+            "/catways/" +
+                reservedCatwayNumber +
+                "/reservations/" +
+                idReservation,
+        );
+    } else {
+        updateUrl = config(
+            "/catways/" + catwayNumber + "/reservations/" + idReservation,
+        );
+    }
+
+    try {
+        const response = await fetch(updateUrl, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(preload),
+        })
+            .then(async (response) => {
+                var data;
+                if (!response.ok) {
+                    data = await response.json();
+                    return Promise.reject(data);
+                }
+                return data;
+            })
+            .then((data) => {
+                console.log(data);
+            });
+        window.location.href = "./subpages/confirmUpdateReservation.html";
+    } catch (error) {
+        console.log("une erreur est présente");
+        console.log(error);
+        alert(jsonData.errorMessage);
+    }
+}
+
+const reservationsCardsContainer = document.querySelector(
+    "#reservationsCardsContainer",
+);
+
+if (reservationsCardsContainer) {
+    reservationsCardsContainer.addEventListener("submit", handleUpdateSubmit);
+}
+
+async function handleDelete(event) {
+    const deleteBtn = event.target.closest(".delete-button");
+    const catwayNumber = deleteBtn.dataset.catwayId;
+    const idReservation = deleteBtn.dataset.idReservation;
+    console.log(catwayNumber);
+
+    const deleteUrl = config(
+        "/catways/" + catwayNumber + "/reservations/" + idReservation,
+    );
+
+    if (
+        window.confirm("Êtes-vous sûr de vouloir supprimer cette réservation ?")
+    ) {
+        try {
+            const response = await fetch(deleteUrl, {
+                method: "DELETE",
+                credentials: "include",
+            })
+                .then(async (response) => {
+                    var data;
+                    if (!response.ok) {
+                        data = await response.json();
+                        return Promise.reject(data);
+                    }
+                    return data;
+                })
+                .then((data) => {
+                    console.log(data);
+                });
+
+            window.location.href = "./subpages/confirmDeleteReservation.html";
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+}
+
+if (reservationsCardsContainer) {
+    reservationsCardsContainer.addEventListener("click", handleDelete);
 }
