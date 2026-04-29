@@ -30,8 +30,9 @@ async function handleLogin(e) {
             body: JSON.stringify({ email, password }),
         });
     } catch (error) {
-        // Error payloads are expected to expose `errorMessage`.
-        alert(error.message);
+        // Error payloads are expected to expose `error`.
+        console.log(error);
+        alert(error);
     }
 
     const data = await response.json();
