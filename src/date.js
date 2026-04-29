@@ -1,3 +1,8 @@
+/**
+ * Render the current date in French locale into the page header.
+ *
+ * @returns {void}
+ */
 function date() {
     const date = new Date();
     const p = document.getElementById("date");

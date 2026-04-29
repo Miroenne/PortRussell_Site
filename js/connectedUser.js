@@ -1,3 +1,8 @@
+/**
+ * Fetch the currently connected user and display their profile data.
+ *
+ * @returns {Promise<void>}
+ */
 async function connectedUser() {
     const connectedUser = sessionStorage.getItem("user");
     const name = document.getElementById("connectedUserName");
