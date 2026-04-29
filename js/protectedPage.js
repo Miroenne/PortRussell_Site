@@ -11,4 +11,5 @@ function redirect() {
     }
 }
 
+// Guard protected pages immediately on script evaluation.
 redirect();

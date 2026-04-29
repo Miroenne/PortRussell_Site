@@ -26,11 +26,26 @@ import { config } from "../src/config.js";
 export async function extractAndDisplayCatways() {
     const catwaysUrl = config("/catways");
 
-    const catwaysResponse = await fetch(catwaysUrl, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-    });
+    try {
+        const catwaysResponse = await fetch(catwaysUrl, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+        })
+            .then(async (response) => {
+                var data;
+                if (!response.ok) {
+                    data = await response.json();
+                    return Promise.reject(data);
+                }
+                return data;
+            })
+            .then((data) => {
+                console.log(data);
+            });
+    } catch (error) {
+        alert(jsonData.errorMessage);
+    }
 
     const catways = await catwaysResponse.json();
 
@@ -76,7 +91,7 @@ export async function extractAndDisplayCatways() {
 
                     <!-- Modal integration for the Update/Delete action -->
                     <div class='card-footer'>
-                       <div>
+                        <div>
                             <!-- Action buttons to trigger the Modal or the Delete process -->
                             <div class="text-center row justify-content-evenly">
                                 <button type="button" class="btn btn-success w-auto col-6 " data-bs-toggle="modal" data-bs-target="#${catwayUpdateModalId}">
@@ -128,6 +143,7 @@ export async function extractAndDisplayCatways() {
     });
 }
 
+// Load catways only on the dedicated page to keep this module reusable.
 if (window.location.href.includes("catways")) {
     extractAndDisplayCatways();
 }
@@ -165,16 +181,29 @@ export async function handleSubmit(event) {
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: JSON.stringify(addPreload),
-        });
+        })
+            .then(async (response) => {
+                var data;
+                if (!response.ok) {
+                    data = await response.json();
+                    return Promise.reject(data);
+                }
+                return data;
+            })
+            .then((data) => {
+                console.log(data);
+            });
+
         window.location.href = "./subpages/confirmAddCatway.html";
     } catch (error) {
-        alert(error.message);
+        alert(jsonData.errorMessage);
     }
 }
 
 const addCatwayForm = document.querySelector("#addCatwayForm");
 
 if (addCatwayForm) {
+    // Static modal form listener for catway creation.
     addCatwayForm.addEventListener("submit", handleSubmit);
 }
 
@@ -190,8 +219,6 @@ export async function handleUpdateSubmit(event) {
     if (!updateForm) return;
     event.preventDefault();
 
-    console.log("handleUpdateSubmit");
-
     const updateFormData = new FormData(updateForm);
     catwayNumber = updateForm.dataset.catwayNumber;
 
@@ -206,9 +233,20 @@ export async function handleUpdateSubmit(event) {
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: JSON.stringify(preload),
-        });
+        })
+            .then(async (response) => {
+                var data;
+                if (!response.ok) {
+                    data = await response.json();
+                    return Promise.reject(data);
+                }
+                return data;
+            })
+            .then((data) => {
+                console.log(data);
+            });
     } catch (error) {
-        alert(error.message);
+        alert(jsonData.errorMessage);
     }
 
     window.location.href = "./subpages/confirmUpdateCatway.html";
@@ -217,6 +255,7 @@ export async function handleUpdateSubmit(event) {
 const catwaysCardsContainer = document.querySelector("#catwaysCardsContainer");
 
 if (catwaysCardsContainer) {
+    // Event delegation handles submit events from dynamically generated update forms.
     catwaysCardsContainer.addEventListener("submit", handleUpdateSubmit);
 }
 
@@ -229,7 +268,6 @@ if (catwaysCardsContainer) {
 async function handleDelete(event) {
     const deleteBtn = event.target.closest(".delete-button");
     catwayNumber = deleteBtn.dataset.catwayId;
-    console.log(catwayNumber);
 
     const deleteUrl = config("/catways/" + catwayNumber);
 
@@ -238,15 +276,27 @@ async function handleDelete(event) {
             const response = await fetch(deleteUrl, {
                 method: "DELETE",
                 credentials: "include",
-            });
+            })
+                .then(async (response) => {
+                    var data;
+                    if (!response.ok) {
+                        data = await response.json();
+                        return Promise.reject(data);
+                    }
+                    return data;
+                })
+                .then((data) => {
+                    console.log(data);
+                });
 
             window.location.href = "./subpages/confirmDeleteCatway.html";
         } catch (error) {
-            alert(error.message);
+            alert(jsonData.errorMessage);
         }
     }
 }
 
 if (catwaysCardsContainer) {
+    // Event delegation handles delete clicks from dynamic cards.
     catwaysCardsContainer.addEventListener("click", handleDelete);
 }

@@ -24,12 +24,26 @@ import { config } from "../src/config.js";
  */
 export async function extractAndDisplayUsers() {
     const usersUrl = config("/users");
-
-    const usersResponse = await fetch(usersUrl, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-    });
+    try {
+        const usersResponse = await fetch(usersUrl, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+        })
+            .then(async (response) => {
+                var data;
+                if (!response.ok) {
+                    data = await response.json();
+                    return Promise.reject(data);
+                }
+                return data;
+            })
+            .then((data) => {
+                console.log(data);
+            });
+    } catch (error) {
+        alert(jsonData.errorMessage);
+    }
 
     const users = await usersResponse.json();
 
@@ -38,9 +52,6 @@ export async function extractAndDisplayUsers() {
         const name = user.userName.replaceAll(" ", "");
         const usersCardId = `${name}Card`;
         const usersUpdateModalId = `${name}UpdateModal`;
-
-        console.log(usersCardId);
-        console.log(usersUpdateModalId);
 
         usersCardsContainer.innerHTML += `                        
                 <div class="card shadow-lg min-h-200 mx-auto border-2 mt-5 w-45" id=${usersCardId}>            
@@ -60,7 +71,7 @@ export async function extractAndDisplayUsers() {
 
                     <!-- Modal integration for the Update/Delete action -->
                     <div class='card-footer'>
-                       <div>
+                        <div>
                             <!-- Action buttons to trigger the Modal or the Delete process -->
                             <div class="text-center row justify-content-evenly">
                                 <button type="button" class="btn btn-success w-auto col-6 " data-bs-toggle="modal" data-bs-target="#${usersUpdateModalId}">
@@ -112,6 +123,7 @@ export async function extractAndDisplayUsers() {
     });
 }
 
+// Load users only on the dedicated page to keep this module reusable.
 if (window.location.href.includes("users")) {
     extractAndDisplayUsers();
 }
@@ -136,8 +148,6 @@ export async function handleSubmit(event) {
 
     event.preventDefault();
 
-    console.log("handleSubmit");
-
     const addFormData = new FormData(addForm);
     userName = addFormData.get("userName");
     email = addFormData.get("email");
@@ -158,22 +168,36 @@ export async function handleSubmit(event) {
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: JSON.stringify(addPreload),
-        });
+        })
+            .then(async (response) => {
+                var data;
+                if (!response.ok) {
+                    data = await response.json();
+                    return Promise.reject(data);
+                }
+                return data;
+            })
+            .then((data) => {
+                console.log(data);
+            });
+
         window.location.href = "./subpages/confirmAddUser.html";
     } catch (error) {
-        console.log(error);
+        alert(jsonData.errorMessage);
     }
 }
 
 const addUserForm = document.querySelector("#addUserForm");
 
 if (addUserForm) {
+    // Static modal form listener for user creation.
     addUserForm.addEventListener("submit", handleSubmit);
 }
 
 const usersCardContainer = document.querySelector("#usersCardsContainer");
 
 if (usersCardContainer) {
+    // Event delegation handles submit events from dynamically generated update forms.
     usersCardContainer.addEventListener("submit", handleUpdateSubmit);
 }
 
@@ -188,8 +212,6 @@ export async function handleUpdateSubmit(event) {
 
     if (!updateForm) return;
     event.preventDefault();
-
-    console.log("handleUpdateSubmit");
 
     const updateFormData = new FormData(updateForm);
     const originalEmail = updateForm.dataset.originalEmail;
@@ -212,9 +234,20 @@ export async function handleUpdateSubmit(event) {
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: JSON.stringify(preload),
-        });
+        })
+            .then(async (response) => {
+                var data;
+                if (!response.ok) {
+                    data = await response.json();
+                    return Promise.reject(data);
+                }
+                return data;
+            })
+            .then((data) => {
+                console.log(data);
+            });
     } catch (error) {
-        alert(error.message);
+        alert(jsonData.errorMessage);
     }
 
     window.location.href = "./subpages/confirmUpdateUser.html";
@@ -229,17 +262,11 @@ export async function handleUpdateSubmit(event) {
 async function handleDelete(event) {
     const deleteBtn = event.target.closest(".delete-button");
     const userEmail = deleteBtn.dataset.userEmail;
-    console.log("userEmail: " + userEmail);
 
     const connectedUser = sessionStorage.getItem("user");
     const sessionUser = JSON.parse(connectedUser);
 
     const deleteUrl = config("/users/" + encodeURIComponent(userEmail));
-
-    console.log("sessionUser.email: " + sessionUser.email);
-    console.log(
-        "includes portrussell: " + sessionUser.email.includes("portrussell"),
-    );
 
     if (
         window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")
@@ -248,8 +275,6 @@ async function handleDelete(event) {
             return alert("Vous ne pouvez pas supprimer cet utilisateur");
         }
         if (userEmail !== sessionUser.email) {
-            console.log(userEmail);
-            console.log(sessionUser.email);
             if (sessionUser.email.includes("portrussell") === false) {
                 return alert("Vous ne pouvez pas supprimer cet utilisateur");
             }
@@ -258,7 +283,19 @@ async function handleDelete(event) {
             const response = await fetch(deleteUrl, {
                 method: "DELETE",
                 credentials: "include",
-            });
+            })
+                .then(async (response) => {
+                    var data;
+                    if (!response.ok) {
+                        data = await response.json();
+                        return Promise.reject(data);
+                    }
+                    return data;
+                })
+                .then((data) => {
+                    console.log(data);
+                });
+
             if (response.ok) {
                 const connectedUser = sessionStorage.getItem("user");
                 const sessionUser = JSON.parse(connectedUser);
@@ -271,11 +308,12 @@ async function handleDelete(event) {
                 }
             }
         } catch (error) {
-            alert(error.message);
+            alert(jsonData.errorMessage);
         }
     }
 }
 
 if (usersCardContainer) {
+    // Event delegation handles delete clicks from dynamic cards.
     usersCardContainer.addEventListener("click", handleDelete);
 }

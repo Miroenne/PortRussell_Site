@@ -10,18 +10,28 @@ async function connectedUser() {
 
     const sessionUser = JSON.parse(connectedUser);
 
-    // const url = config("/users/" + sessionUser.email);
-    // console.log(url);
-
-    const response = await fetch(
-        "http://localhost:3000/users/" + sessionUser.email,
-        {
+    const url = config("/users/" + sessionUser.email);
+    try {
+        const response = await fetch(url, {
             method: "GET",
             headers: { "Content-Type": "application/json" },
             // 'include' ensures that HTTP-only cookies (like JWT) are handled correctly
             credentials: "include",
-        },
-    );
+        })
+            .then(async (response) => {
+                var data;
+                if (!response.ok) {
+                    data = await response.json();
+                    return Promise.reject(data);
+                }
+                return data;
+            })
+            .then((data) => {
+                console.log(data);
+            });
+    } catch (error) {
+        alert(jsonData.errorMessage);
+    }
 
     const user = await response.json();
 
@@ -31,4 +41,5 @@ async function connectedUser() {
     }
 }
 
+// Bootstrap connected user rendering when the home page loads.
 connectedUser();

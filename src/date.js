@@ -17,4 +17,5 @@ function date() {
     p.innerHTML = localDate;
 }
 
+// Render immediately so the date is visible without user interaction.
 date();

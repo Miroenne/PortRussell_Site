@@ -20,10 +20,7 @@ The project provides an authenticated interface to manage:
 - Protected pages (redirect to login when no user session is found)
 - CRUD flows for users, catways, and reservations
 - Confirmation pages after create, update, and delete actions
-- Home dashboard with:
-    - connected user summary
-    - current date
-    - reservation table overview
+- Home dashboard with connected user summary, current date, and reservation table overview
 
 ## Project Structure
 
@@ -95,12 +92,29 @@ JSDoc comments are now included across the JavaScript codebase for:
 - internal handlers
 - shared payload/data shapes (`@typedef`)
 - global mutable variables (`@type`)
+- module bootstrap behavior (auto-run calls and route-based initialization)
 
 If you want to generate documentation locally (optional):
 
 ```bash
-npx jsdoc js src components README.md -r -d docs
+npx jsdoc -r js src components -d docs -R README.md
 ```
+
+## Script Initialization Pattern
+
+The frontend relies on module side effects:
+
+- `components/navBar.js` builds the navbar when imported.
+- `js/protectedPage.js` checks authentication state immediately.
+- feature modules (`users.js`, `catways.js`, `reservations.js`) self-initialize only when the current URL matches their page.
+- dashboard utilities (`connectedUser.js`, `extractReservations.js`, `src/date.js`) run immediately on page load.
+
+This pattern is intentional and helps keep page-specific logic isolated.
+
+## Error Handling Contract
+
+Several handlers expect backend error payloads to expose an `errorMessage` field.
+When standardizing API errors, keep this field available to preserve UI alert behavior.
 
 ## Known Limitations
 

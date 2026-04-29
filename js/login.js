@@ -1,3 +1,4 @@
+// Bootstrap the login flow as soon as the module is loaded.
 const form = document.getElementById("login-form");
 form.addEventListener("submit", handleLogin);
 import { config } from "../src/config.js";
@@ -9,32 +10,42 @@ import { config } from "../src/config.js";
  * @returns {Promise<void>}
  */
 async function handleLogin(e) {
+    // URL is resolved at submit time to support local and deployed environments.
     const url = config("/users/login");
     // Prevent the default browser form submission behavior (page reload)
     e.preventDefault();
-    console.log("Entrée dans la fonction handleLogin");
+
     const formData = new FormData(e.currentTarget);
-    console.log(formData);
+
     const email = formData.get("email");
     const password = formData.get("password");
 
-    console.log("Email:", email);
-    console.log("Password:", password);
-    console.log(url);
-
     // Communication with the authentication endpoint
-    const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // 'include' ensures that HTTP-only cookies (like JWT) are handled correctly
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-    });
-
-    console.log(response);
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            // 'include' ensures that HTTP-only cookies (like JWT) are handled correctly
+            credentials: "include",
+            body: JSON.stringify({ email, password }),
+        })
+            .then(async (response) => {
+                var data;
+                if (!response.ok) {
+                    data = await response.json();
+                    return Promise.reject(data);
+                }
+                return data;
+            })
+            .then((data) => {
+                console.log(data);
+            });
+    } catch (error) {
+        // Error payloads are expected to expose `errorMessage`.
+        alert(jsonData.errorMessage);
+    }
 
     const data = await response.json();
-    console.log(data);
 
     // If the server validates credentials (status 200)
     if (response.status === 200) {
