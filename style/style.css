@@ -1,0 +1,75 @@
+/* TAGS */
+body {
+    padding: 25px;
+    font:
+        1em "Lucida Grande",
+        Helvetica,
+        Arial,
+        sans-serif;
+}
+table {
+    border: 2px solid black !important;
+}
+th,
+td {
+    border: 1px solid black !important;
+}
+caption {
+    caption-side: top;
+    font-size: larger;
+}
+li {
+    list-style: none;
+}
+
+/* CLASS */
+.min-vh-25 {
+    height: 25vh;
+}
+.min-vh-50 {
+    min-height: 50vh;
+}
+.w-45 {
+    width: 45%;
+}
+.display-block {
+    display: block;
+}
+.cardIcon {
+    width: 30px;
+    height: 30px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+.logout-btn {
+    position: relative;
+    border: none;
+    padding: 0;
+    top: 8%;
+    margin-left: 20px;
+    font-weight: light;
+    font-size: small;
+    text-transform: uppercase;
+}
+.min-h-200 {
+    min-height: 200px;
+}
+.ms-4_5 {
+    margin-left: 4.5%;
+}
+.border-top-3 {
+    border-top: 2px solid rgba(0, 0, 0, 0.5);
+}
+
+/* ID */
+#readme {
+    position: absolute;
+    right: 2%;
+    bottom: 2%;
+}
+#homeCard {
+    width: 50%;
+}
+#homeCard p {
+    margin-bottom: 0;
+}
