@@ -1,3 +1,5 @@
+import { config } from "../src/config.js";
+
 /**
  * Fetch the currently connected user and display their profile data.
  *
