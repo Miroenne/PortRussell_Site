@@ -10,7 +10,7 @@ import { config } from "../src/config.js";
  * @returns {Promise<void>}
  */
 async function handleLogin(e) {
-    console.log("entrée dans handleLogin");
+    alert("entrée dans handleLogin");
     // URL is resolved at submit time to support local and deployed environments.
     const url = config("/users/login");
     // Prevent the default browser form submission behavior (page reload)
@@ -20,9 +20,9 @@ async function handleLogin(e) {
 
     const email = formData.get("email");
     const password = formData.get("password");
-    console.log("Email: " + email);
-    console.log("Password: " + password);
-    console.log("Url : " + url);
+    alert("Email: " + email);
+    alert("Password: " + password);
+    alert("Url : " + url);
     // Communication with the authentication endpoint
 
     const response = await fetch(url, {
