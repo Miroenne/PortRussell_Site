@@ -19,7 +19,9 @@ async function handleLogin(e) {
 
     const email = formData.get("email");
     const password = formData.get("password");
-
+    console.log("Email: " + email);
+    console.log("Password: " + password);
+    console.log("Url : " + url);
     // Communication with the authentication endpoint
     try {
         const response = await fetch(url, {
