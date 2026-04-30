@@ -1,3 +1,7 @@
+/**
+ * @file Catway page behaviors: list, create, update, and delete operations.
+ */
+
 import { config } from "../src/config.js";
 
 /**
@@ -21,7 +25,7 @@ import { config } from "../src/config.js";
 /**
  * Fetch every catway and render cards in ascending catway number order.
  *
- * @returns {Promise<void>}
+ * @returns {Promise<void>} Resolves after all catway cards have been rendered.
  */
 export async function extractAndDisplayCatways() {
     const catwaysUrl = config("/catways");
@@ -146,7 +150,7 @@ var catwayNumber = "";
  * Handle the "add catway" form and send a create request.
  *
  * @param {SubmitEvent} event - Submit event emitted by the add catway form.
- * @returns {Promise<void>}
+ * @returns {Promise<void>} Resolves when the create flow completes.
  */
 export async function handleSubmit(event) {
     const addForm = event.target.closest("#addCatwayForm");
@@ -207,7 +211,7 @@ if (addCatwayForm) {
  * Handle inline catway updates from modal forms.
  *
  * @param {SubmitEvent} event - Submit event from an update catway form.
- * @returns {Promise<void>}
+ * @returns {Promise<void>} Resolves when the update flow completes.
  */
 export async function handleUpdateSubmit(event) {
     const updateForm = event.target.closest(".update-catway-form");
@@ -248,7 +252,7 @@ if (catwaysCardsContainer) {
  * Handle catway deletion when the user clicks a delete action.
  *
  * @param {MouseEvent} event - Click event delegated from the cards container.
- * @returns {Promise<void>}
+ * @returns {Promise<void>} Resolves when the delete flow completes.
  */
 async function handleDelete(event) {
     const deleteBtn = event.target.closest(".delete-button");

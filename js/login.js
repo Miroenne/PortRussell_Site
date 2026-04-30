@@ -1,13 +1,30 @@
-// Bootstrap the login flow as soon as the module is loaded.
-const form = document.getElementById("login-form");
-form.addEventListener("submit", handleLogin);
+/**
+ * @file Handle login form submission and authenticated session bootstrap.
+ */
+
 import { config } from "../src/config.js";
+
+/**
+ * Login request payload sent to the authentication endpoint.
+ *
+ * @typedef {Object} LoginPayload
+ * @property {FormDataEntryValue|null} email - Raw email value from the login form.
+ * @property {FormDataEntryValue|null} password - Raw password value from the login form.
+ */
+
+/**
+ * User payload returned by a successful login request.
+ *
+ * @typedef {Object} AuthenticatedUser
+ * @property {string} userName - Display name used in the UI.
+ * @property {string} email - User email identifier.
+ */
 
 /**
  * Handle the login form submission and authenticate the user.
  *
  * @param {SubmitEvent} e - Native submit event from the login form.
- * @returns {Promise<void>}
+ * @returns {Promise<void>} Resolves after authentication flow completes.
  */
 async function handleLogin(e) {
     // URL is resolved at submit time to support local and deployed environments.
@@ -19,8 +36,10 @@ async function handleLogin(e) {
 
     const email = formData.get("email");
     const password = formData.get("password");
-    // Communication with the authentication endpoint
+    /** @type {LoginPayload} */
+    const payload = { email, password };
 
+    /** @type {AuthenticatedUser} */
     var data;
     try {
         const response = await fetch(url, {
@@ -28,7 +47,7 @@ async function handleLogin(e) {
             headers: { "Content-Type": "application/json" },
             // 'include' ensures that HTTP-only cookies (like JWT) are handled correctly
             credentials: "include",
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify(payload),
         }).then(async (response) => {
             data = await response.json();
             if (!response.ok) {
@@ -47,11 +66,7 @@ async function handleLogin(e) {
 
     // If the server validates credentials (status 200)
     if (user) {
-        /**
-         * Session Persistence:
-         * Stores non-sensitive user data (e.g., username, email) in sessionStorage
-         * to maintain context throughout the session.
-         */
+        // Persist non-sensitive user data to keep UI context during this browser session.
         sessionStorage.setItem("user", JSON.stringify(user));
 
         // Redirect user to the dashboard
@@ -61,3 +76,7 @@ async function handleLogin(e) {
         // alert("Identifiant ou mot de passe incorrect");
     }
 }
+
+const form = document.getElementById("login-form");
+// Bootstrap the login flow as soon as the login module is loaded.
+form.addEventListener("submit", handleLogin);

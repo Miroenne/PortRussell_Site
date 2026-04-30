@@ -1,4 +1,8 @@
 /**
+ * @file Build HTML table rows for reservation summaries.
+ */
+
+/**
  * Build the HTML row for one reservation entry in the summary table.
  *
  * @param {string|number} catwayNumber - Catway identifier.
@@ -6,7 +10,7 @@
  * @param {string} boatName - Boat display name.
  * @param {string|Date} startDate - Reservation start date.
  * @param {string|Date} endDate - Reservation end date.
- * @returns {string} HTML string for one `<tr>` row.
+ * @returns {string} HTML string representing one `<tr>` reservation row.
  */
 export function createReservationTable(
     catwayNumber,

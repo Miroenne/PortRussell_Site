@@ -72,10 +72,12 @@ The helper `config(page)` appends the given API path (example: `"/users"`).
 - `POST /users/login`
 - `GET /users/logout`
 - `GET /users`
+- `GET /users/:email`
 - `POST /users`
 - `PUT /users/:email`
 - `DELETE /users/:email`
 - `GET /catways`
+- `GET /catways/:catwayNumber`
 - `POST /catways`
 - `PUT /catways/:catwayNumber`
 - `DELETE /catways/:catwayNumber`
@@ -83,6 +85,77 @@ The helper `config(page)` appends the given API path (example: `"/users"`).
 - `POST /catways/:catwayNumber/reservations`
 - `PUT /catways/:catwayNumber/reservations/:idReservation`
 - `DELETE /catways/:catwayNumber/reservations/:idReservation`
+
+## Swagger / OpenAPI Contract Notes
+
+The backend contract can be described with OpenAPI 3.x (compatible with Swagger tooling).
+Use operation `parameters` for path/query values and `requestBody` for JSON payloads.
+Each operation should declare at least one `responses` entry.
+
+Reference snippet:
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Port Russell API
+  version: 1.0.0
+paths:
+  /users/login:
+    post:
+      summary: Authenticate a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Authenticated user profile
+        "401":
+          description: Invalid credentials
+
+  /catways/{catwayNumber}/reservations:
+    get:
+      summary: List reservations for one catway
+      parameters:
+        - in: path
+          name: catwayNumber
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Reservation list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    catwayNumber:
+                      type: string
+                    clientName:
+                      type: string
+                    boatName:
+                      type: string
+                    startDate:
+                      type: string
+                      format: date-time
+                    endDate:
+                      type: string
+                      format: date-time
+```
 
 ## JSDoc Notes
 
@@ -92,6 +165,7 @@ JSDoc comments are now included across the JavaScript codebase for:
 - internal handlers
 - shared payload/data shapes (`@typedef`)
 - global mutable variables (`@type`)
+- module-level intent (`@file`)
 - module bootstrap behavior (auto-run calls and route-based initialization)
 
 If you want to generate documentation locally (optional):
