@@ -25,26 +25,15 @@ import { config } from "../src/config.js";
  */
 export async function extractAndDisplayCatways() {
     const catwaysUrl = config("/catways");
-
+    var catwaysResponse;
     try {
-        const catwaysResponse = await fetch(catwaysUrl, {
+        catwaysResponse = await fetch(catwaysUrl, {
             method: "GET",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
-        })
-            .then(async (response) => {
-                var data;
-                if (!response.ok) {
-                    data = await response.json();
-                    return Promise.reject(data);
-                }
-                return data;
-            })
-            .then((data) => {
-                console.log(data);
-            });
+        });
     } catch (error) {
-        alert(jsonData.errorMessage);
+        console.log(error);
     }
 
     const catways = await catwaysResponse.json();
@@ -171,6 +160,24 @@ export async function handleSubmit(event) {
     const catwayType = addFormData.get("catwayType");
     catwayState = addFormData.get("catwayState");
 
+    try {
+        const checkUrl = config("/catways/" + catwayNumber);
+        const checkResponse = await fetch(checkUrl, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+        });
+
+        const data = await checkResponse.json();
+        console.log(data);
+        if (data) {
+            alert("Ce catway existe déjà");
+            return;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+
     const addPreload = { catwayNumber, catwayType, catwayState };
 
     const addUrl = config("/catways/");
@@ -181,22 +188,11 @@ export async function handleSubmit(event) {
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: JSON.stringify(addPreload),
-        })
-            .then(async (response) => {
-                var data;
-                if (!response.ok) {
-                    data = await response.json();
-                    return Promise.reject(data);
-                }
-                return data;
-            })
-            .then((data) => {
-                console.log(data);
-            });
+        });
 
         window.location.href = "./subpages/confirmAddCatway.html";
     } catch (error) {
-        alert(jsonData.errorMessage);
+        console.log(error);
     }
 }
 
@@ -233,20 +229,9 @@ export async function handleUpdateSubmit(event) {
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: JSON.stringify(preload),
-        })
-            .then(async (response) => {
-                var data;
-                if (!response.ok) {
-                    data = await response.json();
-                    return Promise.reject(data);
-                }
-                return data;
-            })
-            .then((data) => {
-                console.log(data);
-            });
+        });
     } catch (error) {
-        alert(jsonData.errorMessage);
+        console.log(error);
     }
 
     window.location.href = "./subpages/confirmUpdateCatway.html";
@@ -276,22 +261,11 @@ async function handleDelete(event) {
             const response = await fetch(deleteUrl, {
                 method: "DELETE",
                 credentials: "include",
-            })
-                .then(async (response) => {
-                    var data;
-                    if (!response.ok) {
-                        data = await response.json();
-                        return Promise.reject(data);
-                    }
-                    return data;
-                })
-                .then((data) => {
-                    console.log(data);
-                });
+            });
 
             window.location.href = "./subpages/confirmDeleteCatway.html";
         } catch (error) {
-            alert(jsonData.errorMessage);
+            console.log(error);
         }
     }
 }

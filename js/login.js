@@ -21,29 +21,43 @@ async function handleLogin(e) {
     const password = formData.get("password");
     // Communication with the authentication endpoint
 
-    const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // 'include' ensures that HTTP-only cookies (like JWT) are handled correctly
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-    });
+    var data;
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            // 'include' ensures that HTTP-only cookies (like JWT) are handled correctly
+            credentials: "include",
+            body: JSON.stringify({ email, password }),
+        }).then(async (response) => {
+            data = await response.json();
+            if (!response.ok) {
+                throw data;
+            }
+            return data;
+        });
+    } catch (error) {
+        alert(error.errorMessage);
+        return;
+    }
 
-    const data = await response.json();
+    const userName = data.userName;
+    const userEmail = data.email;
+    const user = { userName, userEmail };
 
     // If the server validates credentials (status 200)
-    if (response.status === 200) {
+    if (user) {
         /**
          * Session Persistence:
          * Stores non-sensitive user data (e.g., username, email) in sessionStorage
          * to maintain context throughout the session.
          */
-        sessionStorage.setItem("user", JSON.stringify(data));
+        sessionStorage.setItem("user", JSON.stringify(user));
 
         // Redirect user to the dashboard
         window.location.href = "./pages/home.html";
     } else {
         // Basic UI feedback for failed authentication
-        alert("Identifiant ou mot de passe incorrect");
+        // alert("Identifiant ou mot de passe incorrect");
     }
 }

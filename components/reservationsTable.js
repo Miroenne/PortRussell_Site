@@ -15,12 +15,6 @@ export function createReservationTable(
     startDate,
     endDate,
 ) {
-    console.log(catwayNumber);
-    console.log(clientName);
-    console.log(boatName);
-    console.log(startDate);
-    console.log(endDate);
-
     const start = new Date(startDate).toLocaleDateString("fr-FR");
     const end = new Date(endDate).toLocaleDateString("fr-FR");
 
