@@ -14,20 +14,9 @@ async function logout() {
             method: "GET",
             // 'include' ensures that HTTP-only cookies (like JWT) are handled correctly
             credentials: "include",
-        })
-            .then(async (response) => {
-                var data;
-                if (!response.ok) {
-                    data = await response.json();
-                    return Promise.reject(data);
-                }
-                return data;
-            })
-            .then((data) => {
-                console.log(data);
-            });
+        });
     } catch (error) {
-        alert(jsonData.errorMessage);
+        console.log(error);
     }
 
     sessionStorage.removeItem("user");

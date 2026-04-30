@@ -1,85 +1,93 @@
+/**
+ * @file Fetch reservations from all catways and render dashboard table rows.
+ */
+
 import { config } from "../src/config.js";
 import { createReservationTable } from "../components/reservationsTable.js";
 
-/** @type {string|null} */
+/**
+ * Minimal catway payload used to build reservations endpoints.
+ *
+ * @typedef {Object} CatwaySummary
+ * @property {string|number} catwayNumber - Unique catway number.
+ */
+
+/**
+ * Reservation payload consumed by the reservations table renderer.
+ *
+ * @typedef {Object} ReservationSummary
+ * @property {string|number} catwayNumber - Catway number linked to the reservation.
+ * @property {string} clientName - Customer full name.
+ * @property {string} boatName - Boat display name.
+ * @property {string} startDate - Reservation start date (ISO string).
+ * @property {string} endDate - Reservation end date (ISO string).
+ */
+
+/** @type {string|null} API endpoint used by the current fetch step. */
 var url = null;
 
 /**
  * Fetch all reservations from every catway and append rows to the reservations table.
  *
- * @returns {Promise<void>}
+ * @returns {Promise<void>} Resolves when reservation fetches have been scheduled.
  */
 async function extractReservations() {
-    // Future-proof flag intended for UI hooks after first successful load.
     /** @type {boolean} */
     var hasFetched = false;
     url = config("/catways/");
-    /** @type {Array<{catwayNumber: string|number}>|null} */
+    /** @type {Array<CatwaySummary>|null} */
     var catways = null;
-    /** @type {Array<{catwayNumber: string|number, clientName: string, boatName: string, startDate: string, endDate: string}>|null} */
+    /** @type {Array<ReservationSummary>|null} */
     var reservations = null;
-    try {
-        const resCatways = await fetch(url, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-        })
-            .then(async (response) => {
-                var data;
-                if (!response.ok) {
-                    data = await response.json();
-                    return Promise.reject(data);
-                }
-                return data;
-            })
-            .then((data) => {
-                console.log(data);
-            });
-    } catch (error) {
-        alert(jsonData.errorMessage);
-    }
-
-    if (catways) {
+    var data;
+    if (hasFetched === false) {
+        var resCatways;
         try {
-            catways.forEach(async (catway) => {
-                url = config(
-                    "/catways/" + catway.catwayNumber + "/reservations",
-                );
-
-                const resReservations = await fetch(url, {
-                    method: "GET",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                })
-                    .then(async (response) => {
-                        var data;
-                        if (!response.ok) {
-                            data = await response.json();
-                            return Promise.reject(data);
-                        }
-                        return data;
-                    })
-                    .then((data) => {
-                        console.log(data);
-                    });
-
-                reservations = await resReservations.json();
-
-                hasFetched = true;
-
-                const container = document.querySelector("#reservationsBody");
-                reservations.forEach((reservation) => {
-                    container.innerHTML += createReservationTable(
-                        reservation.catwayNumber,
-                        reservation.clientName,
-                        reservation.boatName,
-                        reservation.startDate,
-                        reservation.endDate,
-                    );
-                });
+            resCatways = await fetch(url, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
             });
         } catch (error) {
-            alert(jsonData.errorMessage);
+            console.log(error);
+        }
+
+        catways = await resCatways.json();
+
+        if (catways) {
+            try {
+                // Fetch each catway reservation list, then append rendered rows.
+                catways.forEach(async (catway) => {
+                    url = config(
+                        "/catways/" + catway.catwayNumber + "/reservations",
+                    );
+
+                    const resReservations = await fetch(url, {
+                        method: "GET",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include",
+                    });
+
+                    reservations = await resReservations.json();
+
+                    hasFetched = true;
+
+                    const container =
+                        document.querySelector("#reservationsBody");
+                    // Render one table row per reservation.
+                    reservations.forEach((reservation) => {
+                        container.innerHTML += createReservationTable(
+                            reservation.catwayNumber,
+                            reservation.clientName,
+                            reservation.boatName,
+                            reservation.startDate,
+                            reservation.endDate,
+                        );
+                    });
+                });
+            } catch (error) {
+                console.log(error);
+            }
         }
     }
 }

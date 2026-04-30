@@ -1,4 +1,5 @@
 import { config } from "../src/config.js";
+import { checkAvaibility } from "../src/dateAvaibility.js";
 
 /**
  * Lightweight catway shape returned by the API when listing catways.
@@ -37,25 +38,15 @@ import { config } from "../src/config.js";
  */
 export async function extractAndDisplayReservations() {
     const catwaysUrl = config("/catways");
+    var catwaysResponse;
     try {
-        const catwaysResponse = await fetch(catwaysUrl, {
+        catwaysResponse = await fetch(catwaysUrl, {
             method: "GET",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
-        })
-            .then(async (response) => {
-                var data;
-                if (!response.ok) {
-                    data = await response.json();
-                    return Promise.reject(data);
-                }
-                return data;
-            })
-            .then((data) => {
-                console.log(data);
-            });
+        });
     } catch (error) {
-        alert(jsonData.errorMessage);
+        console.log(error);
     }
 
     const catways = await catwaysResponse.json();
@@ -208,37 +199,76 @@ export async function handleSubmit(event) {
     const startDate = new Date(addFormData.get("startDate"));
     const endDate = new Date(addFormData.get("endDate"));
 
-    const addPreload = {
-        catwayNumber,
-        clientName,
-        boatName,
-        startDate,
-        endDate,
-    };
-
-    const addUrl = config("/catways/" + catwayNumber + "/reservations");
-
     try {
-        const reservationsResponse = await fetch(addUrl, {
-            method: "POST",
+        const checkUrl = config("/catways/" + catwayNumber + "/reservations");
+        const checkResponse = await fetch(checkUrl, {
+            method: "GET",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
-            body: JSON.stringify(addPreload),
-        })
-            .then(async (response) => {
-                var data;
-                if (!response.ok) {
-                    data = await response.json();
-                    return Promise.reject(data);
+        });
+
+        const data = await checkResponse.json();
+        var availableDates;
+
+        if (data) {
+            data.forEach((reservation) => {
+                const reservationStartDate = new Date(reservation.startDate);
+                const reservationEndDate = new Date(reservation.endDate);
+
+                const avaibility = checkAvaibility(
+                    startDate,
+                    endDate,
+                    reservationStartDate,
+                    reservationEndDate,
+                );
+
+                if (avaibility === false) {
+                    alert(
+                        "Dates invalides, ce catway est déjà réservé du: " +
+                            reservationStartDate.toISOString().split("T")[0] +
+                            " au " +
+                            reservationEndDate.toISOString().split("T")[0],
+                    );
+                    return (availableDates = false);
                 }
-                return data;
-            })
-            .then((data) => {
-                console.log(data);
             });
-        window.location.href = "./subpages/confirmAddReservation.html";
+        }
+
+        if (availableDates === false) {
+            return;
+        }
+
+        if (startDate > endDate) {
+            alert(
+                "Dates invalides: La date de début doit être antérieure à la date de fin",
+            );
+            return;
+        }
+
+        const addPreload = {
+            catwayNumber,
+            clientName,
+            boatName,
+            startDate,
+            endDate,
+        };
+
+        const addUrl = config("/catways/" + catwayNumber + "/reservations");
+
+        try {
+            const reservationsResponse = await fetch(addUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify(addPreload),
+            });
+
+            window.location.href = "./subpages/confirmAddReservation.html";
+        } catch (error) {
+            console.log(error);
+        }
     } catch (error) {
-        alert(jsonData.errorMessage);
+        console.log(error);
     }
 }
 
@@ -270,6 +300,59 @@ export async function handleUpdateSubmit(event) {
     const startDate = new Date(updateFormData.get("startDate")) || "";
     const endDate = new Date(updateFormData.get("endDate")) || "";
 
+    try {
+        const checkUrl = config("/catways/" + catwayNumber + "/reservations");
+        const checkResponse = await fetch(checkUrl, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+        });
+
+        const data = await checkResponse.json();
+        var availableDates;
+
+        if (data) {
+            data.forEach((reservation) => {
+                const reservationStartDate = new Date(reservation.startDate);
+                const reservationEndDate = new Date(reservation.endDate);
+
+                const avaibility = checkAvaibility(
+                    startDate,
+                    endDate,
+                    reservationStartDate,
+                    reservationEndDate,
+                );
+
+                if (idReservation === reservation._id) {
+                    return;
+                }
+
+                if (avaibility === false) {
+                    alert(
+                        "Ce catway est déjà réservé pour du: " +
+                            reservationStartDate.toISOString().split("T")[0] +
+                            " au " +
+                            reservationEndDate.toISOString().split("T")[0],
+                    );
+                    return (availableDates = false);
+                }
+            });
+        }
+    } catch (error) {
+        console.log(error);
+    }
+
+    if (availableDates === false) {
+        return;
+    }
+
+    if (startDate > endDate) {
+        alert(
+            "Dates invalides: La date de début doit être antérieure à la date de fin",
+        );
+        return;
+    }
+
     const preload = {
         catwayNumber,
         clientName,
@@ -299,21 +382,11 @@ export async function handleUpdateSubmit(event) {
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: JSON.stringify(preload),
-        })
-            .then(async (response) => {
-                var data;
-                if (!response.ok) {
-                    data = await response.json();
-                    return Promise.reject(data);
-                }
-                return data;
-            })
-            .then((data) => {
-                console.log(data);
-            });
+        });
+
         window.location.href = "./subpages/confirmUpdateReservation.html";
     } catch (error) {
-        alert(jsonData.errorMessage);
+        console.log(error);
     }
 }
 
@@ -348,22 +421,11 @@ async function handleDelete(event) {
             const response = await fetch(deleteUrl, {
                 method: "DELETE",
                 credentials: "include",
-            })
-                .then(async (response) => {
-                    var data;
-                    if (!response.ok) {
-                        data = await response.json();
-                        return Promise.reject(data);
-                    }
-                    return data;
-                })
-                .then((data) => {
-                    console.log(data);
-                });
+            });
 
             window.location.href = "./subpages/confirmDeleteReservation.html";
         } catch (error) {
-            alert(error.message);
+            console.log(error);
         }
     }
 }

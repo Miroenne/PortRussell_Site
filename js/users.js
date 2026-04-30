@@ -24,25 +24,15 @@ import { config } from "../src/config.js";
  */
 export async function extractAndDisplayUsers() {
     const usersUrl = config("/users");
+    var usersResponse;
     try {
-        const usersResponse = await fetch(usersUrl, {
+        usersResponse = await fetch(usersUrl, {
             method: "GET",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
-        })
-            .then(async (response) => {
-                var data;
-                if (!response.ok) {
-                    data = await response.json();
-                    return Promise.reject(data);
-                }
-                return data;
-            })
-            .then((data) => {
-                console.log(data);
-            });
+        });
     } catch (error) {
-        alert(jsonData.errorMessage);
+        console.log(error);
     }
 
     const users = await usersResponse.json();
@@ -153,6 +143,24 @@ export async function handleSubmit(event) {
     email = addFormData.get("email");
     password = addFormData.get("password");
 
+    try {
+        const checkUrl = config("/users/" + email);
+        const checkResponse = await fetch(checkUrl, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+        });
+
+        const data = await checkResponse.json();
+
+        if (data) {
+            alert("Cet email est déjà utilisé");
+            return;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+
     const addPreload = { userName, email, password };
 
     if (password.length < 8) {
@@ -168,22 +176,11 @@ export async function handleSubmit(event) {
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: JSON.stringify(addPreload),
-        })
-            .then(async (response) => {
-                var data;
-                if (!response.ok) {
-                    data = await response.json();
-                    return Promise.reject(data);
-                }
-                return data;
-            })
-            .then((data) => {
-                console.log(data);
-            });
+        });
 
         window.location.href = "./subpages/confirmAddUser.html";
     } catch (error) {
-        alert(jsonData.errorMessage);
+        console.log(error);
     }
 }
 
@@ -219,6 +216,26 @@ export async function handleUpdateSubmit(event) {
     email = (updateFormData.get("email") || originalEmail).trim().toLowerCase();
     password = updateFormData.get("password") || "";
 
+    if (email !== originalEmail) {
+        try {
+            const checkUrl = config("/users/" + email);
+            const checkResponse = await fetch(checkUrl, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+            });
+
+            const data = await checkResponse.json();
+
+            if (data) {
+                alert("Cet email est déjà utilisé");
+                return;
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     if (password && password.length < 8) {
         alert("Le mot de passe doit contenir au moins 8 caractères");
         return;
@@ -234,20 +251,9 @@ export async function handleUpdateSubmit(event) {
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: JSON.stringify(preload),
-        })
-            .then(async (response) => {
-                var data;
-                if (!response.ok) {
-                    data = await response.json();
-                    return Promise.reject(data);
-                }
-                return data;
-            })
-            .then((data) => {
-                console.log(data);
-            });
+        });
     } catch (error) {
-        alert(jsonData.errorMessage);
+        console.log(error);
     }
 
     window.location.href = "./subpages/confirmUpdateUser.html";
@@ -283,18 +289,7 @@ async function handleDelete(event) {
             const response = await fetch(deleteUrl, {
                 method: "DELETE",
                 credentials: "include",
-            })
-                .then(async (response) => {
-                    var data;
-                    if (!response.ok) {
-                        data = await response.json();
-                        return Promise.reject(data);
-                    }
-                    return data;
-                })
-                .then((data) => {
-                    console.log(data);
-                });
+            });
 
             if (response.ok) {
                 const connectedUser = sessionStorage.getItem("user");
@@ -308,7 +303,7 @@ async function handleDelete(event) {
                 }
             }
         } catch (error) {
-            alert(jsonData.errorMessage);
+            console.log(error);
         }
     }
 }

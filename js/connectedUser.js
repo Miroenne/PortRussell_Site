@@ -1,45 +1,69 @@
-import { config } from "../src/config.js";
+/**
+ * @file Resolve the connected user from the session and display profile data.
+ */
+
+import { config } from "../../src/config.js";
+
+/**
+ * User shape persisted in session storage.
+ *
+ * @typedef {Object} SessionUser
+ * @property {string} userName - Display name shown in the UI.
+ * @property {string} userEmail - Unique user email.
+ */
+
+/**
+ * User payload returned by the profile endpoint.
+ *
+ * @typedef {Object} UserProfileResponse
+ * @property {string} userName - User display name.
+ * @property {string} email - User email address.
+ */
 
 /**
  * Fetch the currently connected user and display their profile data.
  *
- * @returns {Promise<void>}
+ * @returns {Promise<void>} Resolves after profile data has been rendered.
  */
 async function connectedUser() {
     const connectedUser = sessionStorage.getItem("user");
     const name = document.getElementById("connectedUserName");
     const email = document.getElementById("connectedUserEmail");
 
+    /** @type {SessionUser} */
     const sessionUser = JSON.parse(connectedUser);
 
-    const url = config("/users/" + sessionUser.email);
+    const url = config("/users/" + sessionUser.userEmail);
+    var response;
+
+    /** @type {UserProfileResponse} */
+    var data;
     try {
-        const response = await fetch(url, {
+        response = await fetch(url, {
             method: "GET",
             headers: { "Content-Type": "application/json" },
             // 'include' ensures that HTTP-only cookies (like JWT) are handled correctly
             credentials: "include",
-        })
-            .then(async (response) => {
-                var data;
-                if (!response.ok) {
-                    data = await response.json();
-                    return Promise.reject(data);
-                }
-                return data;
-            })
-            .then((data) => {
-                console.log(data);
-            });
+        }).then(async (response) => {
+            data = await response.json();
+
+            if (!response.ok) {
+                throw data;
+            }
+            return data;
+        });
     } catch (error) {
-        alert(jsonData.errorMessage);
+        alert(error.errorMessage);
+        return;
     }
 
-    const user = await response.json();
+    const userName = await data.userName;
+    const userEmail = await data.email;
+    const user = { userName, userEmail };
 
     if (user) {
         name.innerHTML = user.userName;
-        email.innerHTML = user.email;
+        email.innerHTML = user.userEmail;
     }
 }
 
