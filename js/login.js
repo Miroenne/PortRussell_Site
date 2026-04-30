@@ -10,6 +10,7 @@ import { config } from "../src/config.js";
  * @returns {Promise<void>}
  */
 async function handleLogin(e) {
+    console.log("entrée dans handleLogin");
     // URL is resolved at submit time to support local and deployed environments.
     const url = config("/users/login");
     // Prevent the default browser form submission behavior (page reload)
