@@ -10,7 +10,6 @@ import { config } from "../src/config.js";
  * @returns {Promise<void>}
  */
 async function handleLogin(e) {
-    alert("entrée dans handleLogin");
     // URL is resolved at submit time to support local and deployed environments.
     const url = config("/users/login");
     // Prevent the default browser form submission behavior (page reload)
@@ -20,9 +19,6 @@ async function handleLogin(e) {
 
     const email = formData.get("email");
     const password = formData.get("password");
-    alert("Email: " + email);
-    alert("Password: " + password);
-    alert("Url : " + url);
     // Communication with the authentication endpoint
 
     const response = await fetch(url, {
@@ -45,7 +41,7 @@ async function handleLogin(e) {
         sessionStorage.setItem("user", JSON.stringify(data));
 
         // Redirect user to the dashboard
-        // window.location.href = "./pages/home.html";
+        window.location.href = "./pages/home.html";
     } else {
         // Basic UI feedback for failed authentication
         alert("Identifiant ou mot de passe incorrect");
