@@ -41,7 +41,7 @@ async function handleLogin(e) {
         sessionStorage.setItem("user", JSON.stringify(data));
 
         // Redirect user to the dashboard
-        // window.location.href = "./pages/home.html";
+        window.location.href = "./pages/home.html";
     } else {
         // Basic UI feedback for failed authentication
         alert("Identifiant ou mot de passe incorrect");
