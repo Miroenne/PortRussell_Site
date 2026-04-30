@@ -316,16 +316,12 @@ export async function handleUpdateSubmit(event) {
                 const reservationStartDate = new Date(reservation.startDate);
                 const reservationEndDate = new Date(reservation.endDate);
 
-                const avaibility = checkAvaibility(
+                var avaibility = checkAvaibility(
                     startDate,
                     endDate,
                     reservationStartDate,
                     reservationEndDate,
                 );
-
-                if (idReservation === reservation._id) {
-                    return;
-                }
 
                 if (avaibility === false) {
                     alert(
@@ -384,7 +380,7 @@ export async function handleUpdateSubmit(event) {
             body: JSON.stringify(preload),
         });
 
-        window.location.href = "./subpages/confirmUpdateReservation.html";
+        // window.location.href = "./subpages/confirmUpdateReservation.html";
     } catch (error) {
         console.log(error);
     }
