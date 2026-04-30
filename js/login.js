@@ -24,19 +24,14 @@ async function handleLogin(e) {
     console.log("Password: " + password);
     console.log("Url : " + url);
     // Communication with the authentication endpoint
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            // 'include' ensures that HTTP-only cookies (like JWT) are handled correctly
-            credentials: "include",
-            body: JSON.stringify({ email, password }),
-        });
-    } catch (error) {
-        // Error payloads are expected to expose `error`.
-        console.log(error);
-        alert(error);
-    }
+
+    const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // 'include' ensures that HTTP-only cookies (like JWT) are handled correctly
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+    });
 
     const data = await response.json();
 
